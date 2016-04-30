@@ -23,15 +23,22 @@ float light = 0;
   boolean userDone = false;
   int countDownTimerWait = 0;
   
+  final float screenPPI = 577;
+  float inchesToPixels(float inch)
+  {
+    return inch*screenPPI;
+  }
+  
+  
   void setup() {
-    fullScreen(); //you can change this to be fullscreen
+    fullScreen();
     frameRate(60);
     sensor = new KetaiSensor(this);
     sensor.start();
     orientation(PORTRAIT);
   
     rectMode(CENTER);
-    textFont(createFont("Arial", 40)); //sets the font to Arial size 20
+    textFont(createFont("Arial", 50)); //sets the font to Arial size 20
     textAlign(CENTER);
     
     for (int i=0;i<trialCount;i++)  //don't change this!
@@ -47,51 +54,21 @@ float light = 0;
   }
 
   void draw() {
-
     background(80); //background is light grey
     noStroke(); //no stroke
+    fill(255);
     
-    countDownTimerWait--;
+    if(light < 20)
+      text("Selection Confirmed:", width/2, 3*height/4);
     
-    if (startTime == 0)
-      startTime = millis();
-    
-    if (trialIndex==targets.size() && !userDone)
-    {
-      userDone=true;
-      finishTime = millis();
-    }
-    
-    if (userDone)
-    {
-      text("User completed " + trialCount + " trials", width/2, 50);
-      text("User took " + nfc((finishTime-startTime)/1000f/trialCount,1) + " sec per target", width/2, 150);
-      return;
-    }
-    
-    for (int i=0;i<4;i++)
-    {
-      if(targets.get(trialIndex).target==i)
-         fill(0,255,0);
-         else
-         fill(180,180,180);
-      ellipse(300,i*150+100,100,100);
-    }
-
-    if (light>20)
-      fill(180,0,0);
-    else
-      fill(255,0,0);
     ellipse(cursorX,cursorY,50,50);
- 
-    fill(255);//white
-    text("Trial " + (trialIndex+1) + " of " +trialCount, width/2, 50);
-    text("Target #" + (targets.get(trialIndex).target)+1, width/2, 100);
     
-    if (targets.get(trialIndex).action==0)
-      text("UP", width/2, 150);
+    if(cursorX < width/2)
+      text("Left Selection", width/2, height/2);
     else
-       text("DOWN", width/2, 150);
+      text("Right Selection", width/2, height/2);
+          
+    return;
   }
   
 void onAccelerometerEvent(float x, float y, float z)
@@ -101,10 +78,11 @@ void onAccelerometerEvent(float x, float y, float z)
     
   if (light>20) //only update cursor, if light is low
   {
-    cursorX = 300+x*40; //cented to window and scaled
-    cursorY = 300-y*40; //cented to window and scaled
+    cursorX = width/2-x*80; //cented to window and scaled
+    cursorY = height/2; //cented to window and scaled
   }
   
+  /*
   Target t = targets.get(trialIndex);
   
   if (light<=20 && abs(z-9.8)>4 && countDownTimerWait<0) //possible hit event
@@ -125,6 +103,7 @@ void onAccelerometerEvent(float x, float y, float z)
     else
       println("Missed target! " + hitTest()); //no recording errors this bakeoff.
   }
+  */
 }
 
 int hitTest() 
