@@ -2,9 +2,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import ketai.sensors.*;
 
+
 KetaiSensor sensor;
 
+//accelerometer data
 float cursorX, cursorY;
+//Light sensor data
 float light = 0;
 
 
@@ -57,17 +60,24 @@ float light = 0;
     background(80); //background is light grey
     noStroke(); //no stroke
     fill(255);
+
+
+    pushMatrix();
+    translate(width/2, height/2); // This is the center of the text i want to flip
+    rotate(PI);
     
     if(light < 20)
-      text("Selection Confirmed:", width/2, 3*height/4);
+      text("Selection Confirmed:", 0, height/4);
     
     ellipse(cursorX,cursorY,50,50);
     
-    if(cursorX < width/2)
-      text("Left Selection", width/2, height/2);
+    if(cursorX < 0)
+      text("Left Selection", 0, 0);
     else
-      text("Right Selection", width/2, height/2);
+      text("Right Selection", 0, 0);
           
+    popMatrix();
+    
     return;
   }
   
@@ -78,8 +88,8 @@ void onAccelerometerEvent(float x, float y, float z)
     
   if (light>20) //only update cursor, if light is low
   {
-    cursorX = width/2-x*80; //cented to window and scaled
-    cursorY = height/2; //cented to window and scaled
+    cursorX = x*80; //cented to window and scaled
+    cursorY = 0; //cented to window and scaled
   }
   
   /*
