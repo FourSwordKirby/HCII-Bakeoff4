@@ -12,7 +12,10 @@ String colorDetectInfo = "";
 
 float cursorX, cursorY;
 float light = 0;
-float lightThres = 10;
+float lightThres = 2f;
+float tiltThres = 100f;
+
+float acceleration = 100f;
 
 
 private class Target
@@ -97,9 +100,13 @@ void draw() {
     if(light > lightThres) {
       colorCorrect = detectColor(cam, colors[idx].x, colors[idx].y, colors[idx].z, 0.2);
       if(colorCorrect)
-        fill(255);
+        //fill(255);
+        circleRadius = 200;
+      else
+        circleRadius = 100;
     }
-    ellipse(-100, -width/2 + 300, circleRadius, circleRadius);
+    ellipse(-150, -width/2 + 325, circleRadius, circleRadius);
+    //text(colorDetectInfo, 0, 0);
     
     
     fill(colors[idx].x, colors[idx].y, colors[idx].z);
@@ -116,7 +123,8 @@ void draw() {
       text("RIGHT", 75, -width/2 + 350);
     }
     
-    image(cam, -cam.width/2, -cam.height/+150);
+    //image(cam, -cam.width/2, -cam.height/+150);
+    image(cam, -height/2, -width/2);
 
     fill(255);
     ellipse(cursorX,cursorY,50,50);
@@ -141,7 +149,7 @@ void checkCorrectness()
     {      
       if(targets.get(trialIndex).action==0)
       {
-        if(cursorX < 0)
+        if(cursorX < -tiltThres)
         {
           trialIndex++; //next trial!
           if(trialIndex >= targets.size()) {
@@ -156,7 +164,7 @@ void checkCorrectness()
       }
       else
       {
-        if(cursorX >= 0)
+        if(cursorX >= tiltThres)
         {
           trialIndex++; //next trial!
           if(trialIndex >= targets.size()) {
@@ -182,7 +190,7 @@ void onAccelerometerEvent(float x, float y, float z)
     
   if (true) //only update cursor, if color is correct
   {
-    cursorX = y*40;//cented to window and scaled
+    cursorX = y*acceleration;//cented to window and scaled
     cursorY = 200;//cented to window and scaled
   }
   
