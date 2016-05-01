@@ -45,10 +45,10 @@ void setup() {
   imageMode(CORNER);
   orientation(PORTRAIT);
   
-  colors[0] = new PVector(255, 0, 0);
-  colors[1] = new PVector(85, 255, 0);
-  colors[2] = new PVector(0, 128, 255);
-  colors[3] = new PVector(255, 147, 0);
+  colors[0] = new PVector(255, 0, 0);//red
+  colors[1] = new PVector(140, 255, 60); //green
+  colors[2] = new PVector(0, 128, 255); //blue
+  colors[3] = new PVector(255, 147, 0); //yellow
 
   rectMode(CORNERS);
   textSize(80);
