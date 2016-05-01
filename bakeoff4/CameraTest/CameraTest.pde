@@ -72,12 +72,6 @@ void draw() {
   if (startTime == 0)
     startTime = millis();
   
-  if (trialIndex==targets.size() && !userDone)
-  {
-    userDone=true;
-    finishTime = millis();
-  }
-  
   if (userDone)
   {
     text("User completed " + trialCount + " trials", width/2, 50);
@@ -141,6 +135,12 @@ void onAccelerometerEvent(float x, float y, float z)
       {
         println("Right target, right z direction! " + hitTest());
         trialIndex++; //next trial!
+        if(trialIndex >= targets.size()) {
+          trialIndex = 0;
+          userDone = true;
+          finishTime = millis();
+        }
+        colorCorrect = false;
       }
       else
         println("right target, wrong z direction!");
@@ -169,12 +169,10 @@ void onLightEvent(float v) //this just updates the light value
 
 void onCameraPreviewEvent()
 {
-  if(userDone) return;
   cam.read();
 }
 
 boolean detectColor(PImage img, float r, float g, float b, float ratio) {
-  if(userDone) return false;
   int count = 0;
   int total = 0;
   for(int i=0; i<img.width*img.height; i+=100) {
