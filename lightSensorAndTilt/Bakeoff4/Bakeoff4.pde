@@ -71,10 +71,22 @@ float light = 0;
     
     ellipse(cursorX,cursorY,50,50);
     
+    //Take this Code
     if(cursorX < 0)
-      text("Left Selection", 0, 0);
+    {
+      if(cursorY < 0)
+        text("Top Left Selection", 0, 0);
+      else
+        text("Bottm Left Selection", 0, 0);
+    }
     else
-      text("Right Selection", 0, 0);
+    {
+      if(cursorY < 0)
+        text("Top Right Selection", 0, 0);
+      else
+        text("Bottom Right Selection", 0, 0);
+    }
+    //****************
           
     popMatrix();
     
@@ -85,13 +97,12 @@ void onAccelerometerEvent(float x, float y, float z)
 {
   if (userDone)
     return;
+
+  //Take this code
+  cursorX = x*80; //cented to window and scaled
+  cursorY = -y*90; //cented to window and scaled
+  //****************
     
-  if (light>20) //only update cursor, if light is low
-  {
-    cursorX = x*80; //cented to window and scaled
-    cursorY = 0; //cented to window and scaled
-  }
-  
   /*
   Target t = targets.get(trialIndex);
   
