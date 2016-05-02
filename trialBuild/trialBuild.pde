@@ -9,11 +9,13 @@ String colorText = "";
 PVector[] colors = new PVector[4];
 boolean colorCorrect = false;
 String colorDetectInfo = "";
+String rgbInfo = "";
+float colorThres = 80;
 
 float cursorX=0f, cursorY=100f;
 float light = 0;
 float lightThres = 2f;
-float tiltThres = 300f;
+float tiltThres = 50f;
 
 float acceleration = 0f;
 
@@ -42,13 +44,14 @@ void setup() {
   sensor.start();
   cam = new KetaiCamera(this, 320, 240, 60);
   cam.start();
+  cam.manualSettings();
   imageMode(CORNER);
   orientation(PORTRAIT);
   
-  colors[0] = new PVector(255, 0, 0);//red
-  colors[1] = new PVector(140, 255, 60); //green
-  colors[2] = new PVector(0, 128, 255); //blue
-  colors[3] = new PVector(255, 147, 0); //yellow
+  colors[0] = new PVector(220, 30, 10);//red
+  colors[1] = new PVector(20, 120, 50); //green
+  colors[2] = new PVector(0, 70, 160); //blue
+  colors[3] = new PVector(220, 200, 45); //yellow
 
   rectMode(CORNERS);
   textSize(80);
@@ -69,7 +72,7 @@ void setup() {
 
 void draw() {
 
-  background(80); //background is light grey
+  background(0); //background is light grey
   noStroke(); //no stroke
   fill(255);
   
@@ -84,19 +87,37 @@ void draw() {
   if (userDone)
   {
     text("User completed " + trialCount + " trials", width/2, 100);
-    text("User took " + nfc((finishTime-startTime)/1000f/trialCount,1) + " sec per target", width/2, 200);
+    text("User took " + nfc((finishTime-startTime)/1000f/trialCount,3) + " sec per target", width/2, 200);
     return;
   }
+  
+  
   
   pushMatrix();
   translate(width/2, height/2); // This is the center of the text i want to flip
   rotate(PI/2);
   
+  float r=0;
+  float g=0;
+  float b=0;
+  int total=0;
+  for(int i=0; i<cam.height*cam.width; i+=150) {
+    int val = cam.pixels[i];
+    r += red(val);
+    g += green(val);
+    b += blue(val);
+    total++;
+  }
+  r = r/total;
+  g = g/total;
+  b = b/total;
+  text("R: "+int(r)+" G: "+int(g)+" B: "+int(b), 0, 300);
+  
   if(!userDone) {
     //Task meta-info
     fill(255);//white
     text("Trial " + (trialIndex+1) + " of " +trialCount, 0, -width/2 + 100);
-    text("Target #" + (targets.get(trialIndex).target)+1, 0, -width/2 + 200);
+    text("Target #" + (targets.get(trialIndex).target+1), 0, -width/2 + 200);
     Target t = targets.get(trialIndex);
     int idx = t.target;
     fill(colors[idx].x, colors[idx].y, colors[idx].z);
@@ -111,7 +132,12 @@ void draw() {
     }
     else if(colorCorrect) {
       checkCorrectness();
-      circleSpeed += acceleration;
+      if(acceleration > 0 && t.action == 0
+      || acceleration < 0 && t.action == 1) {
+        circleSpeed += acceleration * 0.1;
+      } else {
+        circleSpeed += acceleration;
+      }
       cursorX += circleSpeed / 60f;
         
       if(cursorX - circleRadius/2 < -height/2) {
@@ -144,11 +170,11 @@ void draw() {
     fill(255,0);
     if(t.action == 1) { // RIGHT
       text("RIGHT", 0, 0);
-      rect(tiltThres, -100, height/2, width/2);
+      rect(tiltThres+100, -100, height/2, width/2);
     }
     else {
       text("LEFT", 0, 0);
-      rect(-tiltThres, -100, -height/2, width/2);
+      rect(-tiltThres-100, -100, -height/2, width/2);
     }
     noStroke();
   }
@@ -169,6 +195,7 @@ void checkCorrectness()
         trialIndex++; //next trial!
         countDownTimerWait = 10;
         cursorX = 0f;
+        circleRadius = 100f;
         circleSpeed = 0f;
         if(trialIndex >= targets.size()) {
           trialIndex = 0;
@@ -189,7 +216,7 @@ void onAccelerometerEvent(float x, float y, float z)
 {
   if (userDone)
     return;
-  acceleration = y * 30f;//cented to window and scaled
+  acceleration = y * 50f;//cented to window and scaled
 }
 
 int hitTest() 
@@ -215,10 +242,10 @@ void onCameraPreviewEvent()
 boolean detectColor(PImage img, float r, float g, float b, float ratio) {
   int count = 0;
   int total = 0;
-  for(int i=0; i<img.width*img.height; i+=100) {
+  for(int i=0; i<img.width*img.height; i+=150) {
     int val = img.pixels[i];
     float d = dist(r, g, b, red(val), green(val), blue(val));
-    if(d < 100) count++;
+    if(d < colorThres) count++;
     total ++;
   }
   colorDetectInfo = "Count: "+count+" Total: "+total;
