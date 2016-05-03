@@ -15,9 +15,11 @@ float colorThres = 80;
 float cursorX=0f, cursorY=100f;
 float light = 0;
 float lightThres = 2f;
-float tiltThres = 50f;
+float tiltThres = 10f;
 
 float acceleration = 0f;
+
+boolean DEBUG = false;
 
 
 private class Target
@@ -26,7 +28,7 @@ private class Target
   int action = 0;
 }
 
-int trialCount = 5; //this will be set higher for the bakeoff
+int trialCount = 75; //this will be set higher for the bakeoff
 int trialIndex = 0;
 ArrayList<Target> targets = new ArrayList<Target>();
    
@@ -48,10 +50,10 @@ void setup() {
   imageMode(CORNER);
   orientation(PORTRAIT);
   
-  colors[0] = new PVector(220, 30, 10);//red
-  colors[1] = new PVector(20, 120, 50); //green
-  colors[2] = new PVector(0, 70, 160); //blue
-  colors[3] = new PVector(220, 200, 45); //yellow
+  colors[0] = new PVector(220, 20, 10);//red
+  colors[1] = new PVector(40, 120, 20); //green
+  colors[2] = new PVector(0, 70, 140); //blue
+  colors[3] = new PVector(220, 190, 45); //yellow
 
   rectMode(CORNERS);
   textSize(80);
@@ -111,7 +113,7 @@ void draw() {
   r = r/total;
   g = g/total;
   b = b/total;
-  text("R: "+int(r)+" G: "+int(g)+" B: "+int(b), 0, 300);
+  if(DEBUG)text("R: "+int(r)+" G: "+int(g)+" B: "+int(b), 0, 300);
   
   if(!userDone) {
     //Task meta-info
@@ -121,43 +123,43 @@ void draw() {
     Target t = targets.get(trialIndex);
     int idx = t.target;
     fill(colors[idx].x, colors[idx].y, colors[idx].z);
-    if(light > lightThres) {
+    //if(light > lightThres) {
       circleSpeed = 0f;
-      colorCorrect = detectColor(cam, colors[idx].x, colors[idx].y, colors[idx].z, 0.2);
+      colorCorrect = detectColor(cam, colors[idx].x, colors[idx].y, colors[idx].z, 0.1);
       if(colorCorrect)
         //fill(255);
         circleRadius = 200;
       else
         circleRadius = 100;
-    }
-    else if(colorCorrect) {
+    //}
+    //else 
+    if(colorCorrect) {
       checkCorrectness();
-      if(acceleration > 0 && t.action == 0
-      || acceleration < 0 && t.action == 1) {
-        circleSpeed += acceleration * 0.1;
-      } else {
+      //if(acceleration > 0 && t.action == 0
+      //|| acceleration < 0 && t.action == 1) {
+      //  circleSpeed += acceleration * 0.1;
+      //} else {
         circleSpeed += acceleration;
-      }
+      //}
       cursorX += circleSpeed / 60f;
         
-      if(cursorX - circleRadius/2 < -height/2) {
-        cursorX = -height/2+circleRadius/2;
+      if(cursorX - circleRadius/2 < -150f) {
+        cursorX = -150f+circleRadius/2;
         circleSpeed = 0f;
       }
-      if(cursorX + circleRadius/2 > height/2) {
-        cursorX = height/2-circleRadius/2;
+      if(cursorX + circleRadius/2 > 150f) {
+        cursorX = 150f-circleRadius/2;
         circleSpeed = 0f;
       }
     }
     else {
       circleSpeed = 0f;
+      cursorX = 0f;
     }
     //ellipse(-150, -width/2 + 325, circleRadius, circleRadius);
     //text(colorDetectInfo, 0, 0);
     
     image(cam, -height/2, -width/2);
-
-    ellipse(cursorX,cursorY,circleRadius,circleRadius);
     
     /*
     if(cursorX < 0)
@@ -165,18 +167,32 @@ void draw() {
     else
       text("Right Selection", 0, 50);
     */
-    stroke(colors[idx].x, colors[idx].y, colors[idx].z);
     strokeWeight(10);
+    stroke(20);
     fill(255,0);
+    if(t.action == 0) {
+      //rect(tiltThres+100, -100, height/2, width/2);
+      ellipse(tiltThres+100f, cursorY, 205f, 205f);
+    }
+    else {
+      //rect(-tiltThres-100, -100, -height/2, width/2);
+      ellipse(-tiltThres-100f, cursorY, 205f, 205f);
+    }
+    stroke(colors[idx].x, colors[idx].y, colors[idx].z);
     if(t.action == 1) { // RIGHT
       text("RIGHT", 0, 0);
-      rect(tiltThres+100, -100, height/2, width/2);
+      //rect(tiltThres+100, -100, height/2, width/2);
+      ellipse(tiltThres+100f, cursorY, 205f, 205f);
     }
     else {
       text("LEFT", 0, 0);
-      rect(-tiltThres-100, -100, -height/2, width/2);
+      //rect(-tiltThres-100, -100, -height/2, width/2);
+      ellipse(-tiltThres-100f, cursorY, 205f, 205f);
     }
     noStroke();
+    fill(colors[idx].x, colors[idx].y, colors[idx].z);
+
+    ellipse(cursorX,cursorY,circleRadius,circleRadius);
   }
      
   popMatrix();
@@ -184,8 +200,8 @@ void draw() {
 
 void checkCorrectness()
 {
-  if (light<=lightThres)
-  {
+  //if (light<=lightThres)
+  //{
     //if (hitTest()==t.target)//check if it is the right target
     if(colorCorrect)
     {
@@ -193,7 +209,7 @@ void checkCorrectness()
         targets.get(trialIndex).action==1 && cursorX >= tiltThres)
       {
         trialIndex++; //next trial!
-        countDownTimerWait = 10;
+        countDownTimerWait = 1;
         cursorX = 0f;
         circleRadius = 100f;
         circleSpeed = 0f;
@@ -209,7 +225,7 @@ void checkCorrectness()
     }
     else
       println("Missed target! " + hitTest()); //no recording errors this bakeoff.
-  }
+  //}
 }
   
 void onAccelerometerEvent(float x, float y, float z)
